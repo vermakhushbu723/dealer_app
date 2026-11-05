@@ -54,14 +54,16 @@ class ApiClient {
 
   Map<String, String> get _authHeader => {if (token != null) 'Authorization': 'Bearer $token'};
 
-  Future<dynamic> _send(Future<http.Response> Function() request) async {
+  /// A read is safe to try twice. A write is not: the first may have worked, and a second could place an order twice.
+  Future<dynamic> _send(Future<http.Response> Function() request, {bool retry = false}) async {
     final http.Response response;
     try {
       response = await request().timeout(_timeout);
+    } on http.ClientException {
+      if (retry) return _send(request);
+      throw const AppException('Could not reach the server. Please check your internet.');
     } on TimeoutException {
       throw const AppException('The server is taking too long. Please try again.');
-    } on http.ClientException {
-      throw const AppException('Could not reach the server. Please check your internet.');
     }
     final body = response.body.isEmpty ? null : _localTimes(jsonDecode(utf8.decode(response.bodyBytes)));
     if (response.statusCode >= 200 && response.statusCode < 300) return body;
@@ -79,7 +81,7 @@ class ApiClient {
 
   Map<String, String> get _jsonHeaders => {'Content-Type': 'application/json', ..._authHeader};
 
-  Future<dynamic> get(String path) => _send(() => _client.get(_uri(path), headers: _authHeader));
+  Future<dynamic> get(String path) => _send(() => _client.get(_uri(path), headers: _authHeader), retry: true);
 
   Future<dynamic> post(String path, [Object? body]) =>
       _send(() => _client.post(_uri(path), headers: _jsonHeaders, body: jsonEncode(body ?? const {})));
