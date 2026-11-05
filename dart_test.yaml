@@ -1,0 +1,3 @@
+tags:
+  contract:
+    skip: "Needs a server. See test/api_contract_test.dart"

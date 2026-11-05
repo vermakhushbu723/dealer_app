@@ -1,0 +1,64 @@
+abstract final class Routes {
+  static const splash = '/splash';
+  static const login = '/login';
+  static const otp = '/otp';
+  static const kyc = '/kyc';
+  static const kycPending = '/kyc-pending';
+
+  static const home = '/';
+  static const catalog = '/products';
+  static const orders = '/orders';
+  static const payments = '/payments';
+  static const menu = '/menu';
+
+  static const priceList = '/price-list';
+  static const cart = '/cart';
+  static const checkout = '/checkout';
+  static const trackDelivery = '/track';
+  static const notifications = '/notifications';
+  static const notificationSettings = '/notification-settings';
+  static const addresses = '/addresses';
+  static const offers = '/offers';
+  static const iceBoxes = '/ice-boxes';
+  static const calculator = '/calculator';
+  static const reports = '/reports';
+  static const standingOrders = '/standing-orders';
+  static const standingOrderForm = '/standing-order-form';
+  static const deliverySchedule = '/delivery-schedule';
+  static const ledger = '/ledger';
+  static const invoices = '/invoices';
+  static const paymentHistory = '/payment-history';
+  static const recordPayment = '/make-payment';
+  static const complaints = '/complaints';
+  static const newComplaint = '/new-complaint';
+  static const support = '/support';
+  static const tickets = '/tickets';
+  static const newTicket = '/new-ticket';
+  static const businessProfile = '/business-profile';
+  static const documents = '/documents';
+  static const upcomingDeliveries = '/upcoming-deliveries';
+  static const requestDelivery = '/request-delivery';
+  static const receipts = '/receipts';
+  static const settings = '/settings';
+  static const manageAccount = '/manage-account';
+  static const changePassword = '/change-password';
+
+  static String product(String id) => '$catalog/$id';
+  static String order(String id) => '$orders/$id';
+  static String orderPlaced(String id) => '/order-placed/$id';
+  static String trackOrder(String id) => '$trackDelivery/$id';
+  static String complaint(String id) => '$complaints/$id';
+  static String ticket(String id) => '$tickets/$id';
+  static String orderList(String status) => '/order-list/$status';
+  static String trackSection(String section) => '/track-section/$section';
+  static String category(String id) => '/category/$id';
+  static String ledgerOf(String filter) => '$ledger/$filter';
+  static String balance(String section) => '/balance/$section';
+  static String reportComplaint(String type) => '$newComplaint?type=$type';
+  static String complaintList(String section) => '/complaint-list/$section';
+  static String complaintInfo(String section) => '/complaint-info/$section';
+  static String offersOf(String kind) => '$offers/$kind';
+  static String invoicesOf(String section) => '$invoices/$section';
+  static String profileField(String field) => '/profile-field/$field';
+  static String notificationsOf(String type) => '$notifications/$type';
+}
