@@ -38,8 +38,8 @@ const _faqs = [
     'Request a pickup under Ice boxes. The deposit is refunded once the box is returned.',
   ),
   (
-    'What is the delivery OTP for?',
-    'Give the code to the driver after you receive your order. It confirms the delivery.',
+    'How is a delivery confirmed?',
+    'The rider takes a photo of your order when it is delivered. You will find it with the order.',
   ),
 ];
 

@@ -4,7 +4,6 @@ import '../../../core/storage/local_store.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../catalog/domain/product.dart';
 import '../../catalog/presentation/catalog_providers.dart';
-import '../../offers/domain/offer.dart';
 import '../domain/cart_pricing.dart';
 
 /// Product id to quantity, saved so the cart survives a restart.
@@ -48,20 +47,6 @@ class CartController extends Notifier<Map<String, int>> {
 
 final cartProvider = NotifierProvider<CartController, Map<String, int>>(CartController.new);
 
-class AppliedCoupon extends Notifier<Offer?> {
-  @override
-  Offer? build() {
-    ref.watch(dealerStoreProvider);
-    return null;
-  }
-
-  void apply(Offer offer) => state = offer;
-
-  void clear() => state = null;
-}
-
-final appliedCouponProvider = NotifierProvider<AppliedCoupon, Offer?>(AppliedCoupon.new);
-
 /// Null until the product list has loaded.
 final cartBillProvider = Provider<CartBill?>((ref) {
   final products = ref.watch(productsProvider).value;
@@ -71,10 +56,7 @@ final cartBillProvider = Provider<CartBill?>((ref) {
     for (final product in products)
       if (cart.containsKey(product.id)) CartLine(product, cart[product.id]!),
   ];
-  final coupon = ref.watch(appliedCouponProvider);
-  final base = CartBill.calculate(lines);
-  final discount = coupon?.discountOn(base.subtotal) ?? 0;
-  return discount > 0 ? CartBill.calculate(lines, discount: discount, couponCode: coupon!.code) : base;
+  return CartBill.calculate(lines);
 });
 
 final cartItemCountProvider = Provider<int>((ref) => ref.watch(cartProvider).length);

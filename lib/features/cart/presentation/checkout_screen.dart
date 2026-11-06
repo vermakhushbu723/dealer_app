@@ -76,7 +76,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ),
           );
       ref.read(cartProvider.notifier).clear();
-      ref.read(appliedCouponProvider.notifier).clear();
       refreshOrdersAndBalance(ref);
       if (mounted) context.go(Routes.orderPlaced(order.id));
     } catch (e) {

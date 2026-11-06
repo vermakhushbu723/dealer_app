@@ -500,8 +500,7 @@ class DriverCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text('Delivery OTP: ${order.deliveryOtp}', style: text.titleMedium),
-          Text('Share this with the driver only after you receive your order.', style: text.bodySmall),
+          Text('The rider takes a photo when your order is delivered.', style: text.bodySmall),
         ],
       ),
     );

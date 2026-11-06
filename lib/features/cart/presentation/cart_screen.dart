@@ -9,7 +9,6 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/common_widgets.dart';
 import '../../catalog/presentation/catalog_screens.dart';
-import '../../offers/presentation/offers_screen.dart';
 import '../domain/cart_pricing.dart';
 import 'cart_providers.dart';
 import 'cart_widgets.dart';
@@ -59,7 +58,6 @@ class CartScreen extends ConsumerWidget {
                 );
                 if (confirmed) {
                   ref.read(cartProvider.notifier).clear();
-                  ref.read(appliedCouponProvider.notifier).clear();
                 }
               },
               child: const Text('Clear'),
@@ -142,89 +140,9 @@ class _CartBody extends ConsumerWidget {
               ),
             ),
           ),
-        const SectionTitle('Coupon'),
-        _CouponCard(subtotal: bill.subtotal),
         const SectionTitle('Bill'),
         BillSummary(bill: bill),
       ],
-    );
-  }
-}
-
-class _CouponCard extends ConsumerStatefulWidget {
-  const _CouponCard({required this.subtotal});
-
-  final double subtotal;
-
-  @override
-  ConsumerState<_CouponCard> createState() => _CouponCardState();
-}
-
-class _CouponCardState extends ConsumerState<_CouponCard> {
-  final _code = TextEditingController();
-
-  @override
-  void dispose() {
-    _code.dispose();
-    super.dispose();
-  }
-
-  Future<void> _apply() async {
-    final code = _code.text.trim().toUpperCase();
-    if (code.isEmpty) return;
-    final offers = await ref.read(offersProvider.future);
-    if (!mounted) return;
-    final offer = offers.where((o) => o.code == code).firstOrNull;
-    if (offer == null) {
-      showMessage(context, 'This coupon code is not valid', isError: true);
-    } else if (offer.discountOn(widget.subtotal) == 0) {
-      showMessage(context, 'This coupon needs an order of ${money(offer.minOrder)} or more', isError: true);
-    } else {
-      ref.read(appliedCouponProvider.notifier).apply(offer);
-      _code.clear();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final coupon = ref.watch(appliedCouponProvider);
-    final isActive = coupon != null && coupon.discountOn(widget.subtotal) > 0;
-    return AppCard(
-      padding: const EdgeInsets.all(12),
-      child: coupon == null
-          ? Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _code,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(hintText: 'Enter coupon code', isDense: true),
-                  ),
-                ),
-                TextButton(onPressed: _apply, child: const Text('Apply')),
-                TextButton(onPressed: () => context.push(Routes.offers), child: const Text('View offers')),
-              ],
-            )
-          : Row(
-              children: [
-                Icon(
-                  isActive ? Icons.check_circle : Icons.info_outline,
-                  color: isActive ? AppColors.green600 : AppColors.amber600,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    isActive
-                        ? '${coupon.code} applied'
-                        : '${coupon.code} needs an order of ${money(coupon.minOrder)} or more',
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => ref.read(appliedCouponProvider.notifier).clear(),
-                  child: const Text('Remove'),
-                ),
-              ],
-            ),
     );
   }
 }

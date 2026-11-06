@@ -25,7 +25,6 @@ class ApiOrderRepository implements OrderRepository {
         'deliveryDate': request.deliveryDate.toIso8601String(),
         'slot': request.slot,
         'notes': request.notes,
-        'couponCode': bill.couponCode,
         'standingOrderId': request.standingOrderId,
         'expectedTotal': _confirmedTotal ?? bill.total,
       });

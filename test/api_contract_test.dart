@@ -94,16 +94,14 @@ void main() {
     final placed = await orders.place(PlaceOrderRequest(bill: bill, address: list.first, deliveryDate: tomorrow, slot: '9 AM - 12 PM', paymentMethod: PaymentMethod.cashOnDelivery, notes: 'Contract'));
     expect(placed.total, bill.total);
     expect(placed.status, OrderStatus.placed);
-    expect(placed.deliveryOtp.length, 4);
+    expect(placed.deliveryOtp, isEmpty, reason: 'dealers give no OTP');
 
     final tracking = await ApiTrackingRepository(api).track(placed);
     expect(tracking.rider, isNull);
 
-    final couponBill = CartBill.calculate([CartLine(block, 8)], discount: 133.2, couponCode: 'ICE5');
-    final withCoupon = await orders.place(PlaceOrderRequest(bill: couponBill, address: list.first, deliveryDate: tomorrow, slot: '9 AM - 12 PM', paymentMethod: PaymentMethod.cashOnDelivery));
-    expect(withCoupon.total, couponBill.total);
-    await orders.cancel(withCoupon.id, 'Contract test');
-    expect((await orders.orders()).firstWhere((o) => o.id == withCoupon.id).status, OrderStatus.cancelled);
+    final another = await orders.place(PlaceOrderRequest(bill: CartBill.calculate([CartLine(block, 8)]), address: list.first, deliveryDate: tomorrow, slot: '9 AM - 12 PM', paymentMethod: PaymentMethod.cashOnDelivery));
+    await orders.cancel(another.id, 'Contract test');
+    expect((await orders.orders()).firstWhere((o) => o.id == another.id).status, OrderStatus.cancelled);
 
     // Staff move it to the rider, then the rider's own code path is covered by that app's test.
     for (var i = 0; i < 3; i++) {
@@ -114,7 +112,7 @@ void main() {
     final moving = (await orders.orders()).firstWhere((o) => o.id == placed.id);
     expect(moving.status, OrderStatus.outForDelivery);
     expect(moving.driver, isNotNull);
-    await adminApi.post('/admin/actions/confirmDelivery', {'args': [placed.id, {'otp': placed.deliveryOtp, 'mode': 'cash'}]});
+    await adminApi.post('/admin/actions/confirmDelivery', {'args': [placed.id, {'mode': 'cash'}]});
     final done = (await orders.orders()).firstWhere((o) => o.id == placed.id);
     expect(done.status, OrderStatus.delivered);
     expect(done.paymentStatus, PaymentStatus.paid);
@@ -149,7 +147,8 @@ void main() {
     await boxes.cancelPickup(pending.id);
 
     final offers = await ApiOfferRepository(api).offers();
-    expect(offers.any((o) => o.code == 'ICE5'), isTrue);
+    expect(offers, isNotEmpty);
+    expect(offers.every((o) => o.code.isEmpty), isTrue, reason: 'no coupon codes for dealers');
 
     final requests = ApiDeliveryRequestRepository(api);
     await requests.add(DeliveryRequest(id: 'x', date: tomorrow, slot: '9 AM - 12 PM', addressLabel: 'Shop', details: 'Contract', requestedAt: DateTime.now()));
