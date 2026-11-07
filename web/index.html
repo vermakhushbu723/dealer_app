@@ -29,6 +29,7 @@
 
   <title>ICECLUB Dealer</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="preload" href="main.dart.js" as="script">
   
   
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
@@ -89,6 +90,19 @@
       bottom: 0;
       right: 0;
     }
+    .loader {
+      position: absolute;
+      top: calc(50% + 110px);
+      left: 50%;
+      width: 28px;
+      height: 28px;
+      margin-left: -14px;
+      border: 3px solid #DFF2FE;
+      border-top-color: #0069A8;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
   <script id="splash-screen-script">
     function removeSplashFromWeb() {
@@ -99,11 +113,9 @@
   </script>
 </head>
 <body>
-  <picture id="splash">
-      <source srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x" media="(prefers-color-scheme: light)">
-      <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
-      <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
-  </picture>
+  <!-- Shown at once while the app loads; Flutter removes both when it draws its first page. -->
+  <img id="splash" class="center" src="splash/logo.webp" width="160" height="160" alt="" aria-hidden="true">
+  <div id="splash-branding" class="loader" aria-label="Loading"></div>
   
   <!--
     You can customize the "flutter_bootstrap.js" script.

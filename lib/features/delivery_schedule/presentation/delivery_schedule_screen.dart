@@ -217,6 +217,8 @@ class _MonthCalendar extends StatelessWidget {
         ),
         GridView.count(
           crossAxisCount: 7,
+          // Square days on a phone; flatter ones in a wide browser window, so the month fits.
+          childAspectRatio: MediaQuery.sizeOf(context).width >= 900 ? 2.4 : 1,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: [

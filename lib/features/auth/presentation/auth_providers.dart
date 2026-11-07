@@ -12,8 +12,31 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) => useFakeBackend 
 class AuthController extends AsyncNotifier<Dealer?> {
   AuthRepository get _repo => ref.read(authRepositoryProvider);
 
+  /// The profile from the last visit, so the app opens at once instead of waiting on the server.
+  static const _savedKey = 'signed_in_profile';
+
   @override
-  Future<Dealer?> build() => _repo.currentDealer();
+  Future<Dealer?> build() async {
+    if (useFakeBackend) return _repo.currentDealer();
+    final store = ref.read(localStoreProvider);
+    listenSelf((_, next) {
+      if (next.isLoading || next.hasError) return;
+      final value = next.value;
+      value == null ? store.remove(_savedKey) : store.writeMap(_savedKey, value.toJson());
+    });
+    final saved = ref.read(apiProvider).hasToken ? store.readMap(_savedKey) : null;
+    if (saved == null) return _repo.currentDealer();
+    // The server's copy follows a moment later; a signed-out or expired session goes to login then.
+    Future(() async {
+      try {
+        final fresh = await _repo.currentDealer();
+        if (ref.mounted) state = AsyncData(fresh);
+      } catch (_) {
+        // Offline: keep the saved profile, the screens show their own errors.
+      }
+    });
+    return Dealer.fromJson(saved);
+  }
 
   Future<void> verifyOtp(String phone, String otp) async => state = AsyncData(await _repo.verifyOtp(phone, otp));
 

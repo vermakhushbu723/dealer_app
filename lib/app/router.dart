@@ -64,13 +64,18 @@ final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);
   ref.listen(authControllerProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
+  // The page a link or a browser reload asked for, while the app still checks the session.
+  String? wanted;
 
   return GoRouter(
     navigatorKey: _rootKey,
     initialLocation: Routes.splash,
     refreshListenable: refresh,
     redirect: (_, state) {
-      final target = _redirect(ref.read(authControllerProvider), state.matchedLocation);
+      var target = _redirect(ref.read(authControllerProvider), state.matchedLocation);
+      if (target == Routes.splash) wanted = state.uri.toString();
+      // Once signed in, open that page instead of the dashboard.
+      if (target == Routes.home && wanted != null) (target, wanted) = (wanted, null);
       // The OTP screen needs its phone number, which a page reload on the web loses.
       if (target == null && state.matchedLocation == Routes.otp && state.extra == null) return Routes.login;
       return target;

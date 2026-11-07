@@ -104,8 +104,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
             ],
             const SectionTitle('Quick actions'),
-            GridView.count(
-              crossAxisCount: 3,
+            // Three across on any phone, more in a wide browser window.
+            GridView.extent(
+              maxCrossAxisExtent: 130,
               childAspectRatio: 1.15,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
